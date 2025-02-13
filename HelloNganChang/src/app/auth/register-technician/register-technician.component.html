@@ -1,4 +1,47 @@
-<div>
-    a
-  </div>
+<div class="register-technician-form">
+  <h2>Register Technician</h2>
   
+  <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+    <div>
+      <label for="name">Name:</label>
+      <input type="text" id="name" [(ngModel)]="technician.Name" name="Name" required>
+    </div>
+
+    <div>
+      <label for="email">Email:</label>
+      <input type="email" id="email" [(ngModel)]="technician.Email" name="Email" required>
+    </div>
+
+    <div>
+      <label for="password">Password:</label>
+      <input type="password" id="password" [(ngModel)]="technician.Password" name="Password" required>
+    </div>
+
+    <div>
+      <label for="phone">Phone:</label>
+      <input type="text" id="phone" [(ngModel)]="technician.Phone" name="Phone" required>
+    </div>
+
+    <div>
+      <label for="address">Address:</label>
+      <input type="text" id="address" [(ngModel)]="technician.Address" name="Address" required>
+    </div>
+
+    <div>
+      <label for="skills">Skills:</label>
+      <input type="text" id="skills" [(ngModel)]="technician.Skills" name="Skills" required>
+    </div>
+
+    <div>
+      <label for="experience">Experience:</label>
+      <input type="text" id="experience" [(ngModel)]="technician.Experience" name="Experience" required>
+    </div>
+
+    <div>
+      <label for="availableTime">Available Time:</label>
+      <input type="text" id="availableTime" [(ngModel)]="technician.AvailableTime" name="AvailableTime" required>
+    </div>
+
+    <button type="submit" [disabled]="!registerForm.form.valid">Register Technician</button>
+  </form>
+</div>
