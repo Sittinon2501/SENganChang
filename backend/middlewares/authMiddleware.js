@@ -1,32 +1,31 @@
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
 
-const authMiddleware = (req, res, next) => {
-    // ดึง token จาก header
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+const authMiddleware = (roles = []) => {
+    return (req, res, next) => {
+        // ตรวจสอบว่า request มี header "Authorization" หรือไม่
+        const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    // ถ้าไม่มี token ส่งข้อความผิดพลาดกลับ
-    if (!token) {
-        return res.status(401).json({ message: 'Access denied. No token provided.' });
-    }
-
-    try {
-        // ตรวจสอบและถอดรหัส token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // ตรวจสอบ role ของผู้ใช้
-        if (decoded.role.toLowerCase() === 'customer') {
-            req.customer = decoded; // เก็บข้อมูลลูกค้าใน req.customer
-        } else if (decoded.role === 'technician') {
-            req.technician = decoded; // เก็บข้อมูลช่างเทคนิคใน req.technician
-        } else {
-            return res.status(403).json({ message: 'Unauthorized role.' });
+        if (!token) {
+            return res.status(401).json({ message: 'Access Denied, No token provided' });
         }
 
-        next(); // ไปยัง middleware หรือฟังก์ชันถัดไป
-    } catch (error) {
-        res.status(400).json({ message: 'Invalid token.' });
-    }
+        try {
+            // ตรวจสอบว่า token ถูกต้องและยังไม่หมดอายุ
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            // เพิ่มข้อมูลผู้ใช้ลงใน request
+            req.user = decoded;
+
+            // ถ้ามีการตรวจสอบ role และไม่ตรงกับ role ของผู้ใช้ ก็จะไม่อนุญาตให้เข้าถึง
+            if (roles.length && !roles.includes(decoded.role)) {
+                return res.status(403).json({ message: 'Access Denied, insufficient permissions' });
+            }
+
+            next();
+        } catch (error) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+    };
 };
 
-module.exports = authMiddleware; // ส่งออกฟังก์ชัน
+module.exports = authMiddleware;
